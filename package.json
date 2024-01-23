@@ -1,0 +1,42 @@
+{
+  "name": "insomnia-plugin-op",
+  "version": "0.1.0",
+  "description": "Insomnia Plugin to integrate with 1Password CLI (op)",
+  "main": "./dist/app.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Benjamin von Polheim <hi@benvp.co>",
+  "license": "MIT",
+  "insomnia": {
+    "name": "op",
+    "displayName": "1Password",
+    "description": "Insomnia Plugin fetches secrets from 1Password via the CLI (op).",
+    "images": {
+      "icon": "./images/op-plugin-icon.svg",
+      "cover": "/images/op-pluign-cover.svg"
+    },
+    "publisher": {
+      "name": "Benjamin von Polheim",
+      "icon": "https://avatars.githubusercontent.com/u/981344?v=4"
+    },
+    "unlisted": false
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@1password/op-js": "^0.1.11",
+    "node-cache": "^5.1.2"
+  }
+}
