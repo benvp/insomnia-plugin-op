@@ -30,7 +30,9 @@ const op_js_1 = require("@1password/op-js");
 const cache = __importStar(require("./cache"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const lodash_1 = require("lodash");
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
+const debouncedFetchEntry = (0, lodash_1.debounce)(fetchEntry, 500);
 const fetchSecretTemplateTag = {
     name: 'op',
     displayName: '1Password => Fetch Secret',
@@ -51,7 +53,7 @@ const fetchSecretTemplateTag = {
     async run(context, reference) {
         const config = context.context[OP_PLUGIN_CONFIG_KEY];
         await checkCli(config === null || config === void 0 ? void 0 : config.cliPath);
-        const entry = await fetchEntry(reference);
+        const entry = await debouncedFetchEntry(reference);
         return entry;
     },
 };

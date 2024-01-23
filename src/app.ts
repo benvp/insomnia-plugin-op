@@ -2,12 +2,15 @@ import { validateCli, read } from '@1password/op-js';
 import * as cache from './cache';
 import path from 'path';
 import fs from 'fs';
+import { debounce } from 'lodash';
 
 type PluginConfig = {
   cliPath?: string;
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
+
+const debouncedFetchEntry = debounce(fetchEntry, 500);
 
 const fetchSecretTemplateTag = {
   name: 'op',
@@ -29,7 +32,7 @@ const fetchSecretTemplateTag = {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
 
     await checkCli(config?.cliPath);
-    const entry = await fetchEntry(reference);
+    const entry = await debouncedFetchEntry(reference);
 
     return entry;
   },
