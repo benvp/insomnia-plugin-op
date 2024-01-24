@@ -2,7 +2,6 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
-    "target": "ES2017",
     "lib": ["esnext"],
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -12,7 +11,7 @@
     "moduleResolution": "node",
     "isolatedModules": true,
     "noUnusedLocals": false,
-    "removeComments": true
+    "removeComments": true,
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*"]

@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.writeOpCliInstalled = exports.opCliInstalled = exports.getEntry = exports.writeEntry = void 0;
-const node_cache_1 = __importDefault(require("node-cache"));
-const cache = new node_cache_1.default({ stdTTL: 60 * 60 });
+var node_cache_1 = __importDefault(require("node-cache"));
+var cache = new node_cache_1.default({ stdTTL: 60 * 60 });
 function writeEntry(ref, value) {
     return cache.set(ref, value);
 }
