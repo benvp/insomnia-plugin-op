@@ -35,10 +35,10 @@ Add the following variables into your base environment:
 ## Usage
 
 1. Hit `Ctrl + Space` and select the `1Password => Fetch Secret` action.
-![Usage-1](/images/plugin-usage-1.png)
+![Usage-1](https://github.com/benvp/insomnia-plugin-op/blob/main/images/plugin-usage-1.png?raw=true)
 
 2. Click on the action and paste a reference to your 1Password Secret.
-![Usage-2](/images/plugin-usage-2.png)
+![Usage-2](https://github.com/benvp/insomnia-plugin-op/blob/main/images/plugin-usage-2.png?raw=true)
 
 As an alternative, you can also add the secret reference to your environment variables and
 reference this variable inside the action.
