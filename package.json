@@ -8,9 +8,22 @@
     "dev": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "Benjamin von Polheim <hi@benvp.co>",
+  "keywords": ["insomnia", "1password", "op", "plugin"],
+  "author": {
+    "name": "Benjamin von Polheim",
+    "email": "hi@benvp.co",
+    "url": "https://benvp.co"
+  },
+  "bugs": {
+    "email": "hi@benvp.co",
+    "url": "https://github.com/benvp/insomnia-plugin-op/issues",
+  },
   "license": "MIT",
+  "homepage": "https://github.com/benvp/insomnia-plugin-op",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benvp/insomnia-plugin-op"
+  },
   "insomnia": {
     "name": "op",
     "displayName": "1Password",
