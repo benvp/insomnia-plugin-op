@@ -1,6 +1,6 @@
 {
   "name": "insomnia-plugin-op",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Insomnia Plugin to integrate with 1Password CLI (op)",
   "main": "./dist/app.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "dev": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["insomnia", "1password", "op", "plugin"],
+  "keywords": ["insomnia", "insomnia plugin", "1password"],
   "author": {
     "name": "Benjamin von Polheim",
     "email": "hi@benvp.co",
@@ -16,7 +16,7 @@
   },
   "bugs": {
     "email": "hi@benvp.co",
-    "url": "https://github.com/benvp/insomnia-plugin-op/issues",
+    "url": "https://github.com/benvp/insomnia-plugin-op/issues"
   },
   "license": "MIT",
   "homepage": "https://github.com/benvp/insomnia-plugin-op",
