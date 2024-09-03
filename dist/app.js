@@ -92,6 +92,9 @@ var fetchSecretTemplateTag = {
                 switch (_a.label) {
                     case 0:
                         config = context.context[OP_PLUGIN_CONFIG_KEY];
+                        if (config === null || config === void 0 ? void 0 : config.flags) {
+                            (0, op_js_1.setGlobalFlags)(config.flags);
+                        }
                         return [4, checkCli(config === null || config === void 0 ? void 0 : config.cliPath)];
                     case 1:
                         _a.sent();

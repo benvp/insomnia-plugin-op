@@ -1,10 +1,11 @@
-import { validateCli, read } from '@1password/op-js';
+import { validateCli, read, setGlobalFlags } from '@1password/op-js';
 import * as cache from './cache';
 import path from 'path';
 import fs from 'fs';
 
 type PluginConfig = {
   cliPath?: string;
+  flags?: {};
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
@@ -27,6 +28,10 @@ const fetchSecretTemplateTag = {
   ],
   async run(context: any, reference: string) {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
+
+    if (config?.flags) {
+      setGlobalFlags(config.flags);
+    }
 
     await checkCli(config?.cliPath);
     const entry = await fetchEntry(reference);
