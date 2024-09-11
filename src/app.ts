@@ -5,7 +5,7 @@ import fs from 'fs';
 
 type PluginConfig = {
   cliPath?: string;
-  flags?: {};
+  flags?: Record<string, any>;
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
