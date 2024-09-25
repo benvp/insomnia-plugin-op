@@ -5,6 +5,7 @@ import fs from 'fs';
 
 type PluginConfig = {
   cliPath?: string;
+  defaultAccount?: string;
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
@@ -36,7 +37,7 @@ const fetchSecretTemplateTag = {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
 
     await checkCli(config?.cliPath);
-    const entry = await fetchEntry(reference, account);
+    const entry = await fetchEntry(reference, account ?? config?.defaultAccount);
 
     return entry;
   },
