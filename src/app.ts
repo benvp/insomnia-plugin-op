@@ -1,10 +1,11 @@
-import { validateCli, read } from '@1password/op-js';
+import { validateCli, read, GlobalFlags } from '@1password/op-js';
 import * as cache from './cache';
 import path from 'path';
 import fs from 'fs';
 
 type PluginConfig = {
   cliPath?: string;
+  defaultAccount?: string;
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
@@ -13,7 +14,7 @@ const fetchSecretTemplateTag = {
   name: 'op',
   displayName: '1Password => Fetch Secret',
   liveDisplayName: (args: any[]) => {
-    return `1Password => ${args[0]?.value ?? '--'}`;
+    return `1Password => ${args[0]?.value ?? '--'} {${args[1]?.value ? (args[1].value) : ''}}`;
   },
   description: 'Fetch a secret from your 1Password vault',
   args: [
@@ -22,14 +23,21 @@ const fetchSecretTemplateTag = {
       description: '1Password item reference (op://...)',
       type: 'string',
       defaultValue: '',
-      placeholder: "e.g. 'op://team-name.1password.com/vault-name/item-name'",
+      placeholder: "e.g. 'op://vault-name/item-name/section/field'",
+    },
+    {
+      displayName: 'Account',
+      description: '1Password account name',
+      type: 'string',
+      defaultValue: '',
+      placeholder: "e.g. 'team-name.1password.com'",
     },
   ],
-  async run(context: any, reference: string) {
+  async run(context: any, reference: string, account: string) {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
 
     await checkCli(config?.cliPath);
-    const entry = await fetchEntry(reference);
+    const entry = await fetchEntry(reference, account ?? config?.defaultAccount);
 
     return entry;
   },
@@ -68,14 +76,20 @@ async function checkCli(cliPath?: string) {
   }
 }
 
-async function fetchEntry(ref: string) {
+async function fetchEntry(ref: string, account: string) {
   const existing = cache.getEntry(ref);
 
   if (existing) {
     return existing;
   }
 
-  const entry = read.parse(ref);
+  const args: Partial<GlobalFlags> = {};
+
+  if ( account ) {
+    args.account = account;
+  }
+
+  const entry = read.parse(ref, args);
   cache.writeEntry(ref, entry);
 
   return entry;
