@@ -32,6 +32,19 @@ Add the plugin config into your base environment (replace or remove the account 
 }
 ```
 
+If you need to set any [global flags](https://developer.1password.com/docs/cli/reference/#global-flags), add the following:
+
+```json
+{
+  "__op_plugin": {
+    "flags": {
+      // For example specify the account to use
+      "account": "example.1password.com",
+    }
+  }
+}
+```
+
 ## Usage
 
 1. Hit `Ctrl + Space` and select the `1Password => Fetch Secret` action.
