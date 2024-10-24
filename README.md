@@ -27,18 +27,11 @@ Add the plugin config into your base environment (replace or remove the account 
 {
   "__op_plugin": {
     "cliPath": "/opt/homebrew/bin/op",
-    "defaultAccount": "team-name.1password.com"
-  }
-}
-```
+    "defaultAccount": "team-name.1password.com",
 
-If you need to set any [global flags](https://developer.1password.com/docs/cli/reference/#global-flags), add the following:
-
-```json
-{
-  "__op_plugin": {
+    // If you need to set any global flags set them here.
+    // For available flags, see https://developer.1password.com/docs/cli/reference/#global-flags
     "flags": {
-      // For example specify the account to use
       "account": "example.1password.com",
     }
   }
