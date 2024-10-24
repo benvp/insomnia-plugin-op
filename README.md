@@ -21,13 +21,13 @@ authenticating via e.g. biometrics.
 If you install the 1Password CLI via a package manager (like [Homebrew](https://brew.sh/)), then
 you need to tell the plugin the path to the CLI.
 
-Add the following variables into your base environment:
+Add the plugin config into your base environment (replace or remove the account name to use the default 1Password account):
 
 ```json
 {
   "__op_plugin": {
-    // Either the directory containing `op` or directly the full path to the cli.
-    "cliPath": "/opt/homebrew/bin/op"
+    "cliPath": "/opt/homebrew/bin/op",
+    "defaultAccount": "team-name.1password.com"
   }
 }
 ```
@@ -52,6 +52,8 @@ If you need to set any [global flags](https://developer.1password.com/docs/cli/r
 
 2. Click on the action and paste a reference to your 1Password Secret.
 ![Usage-2](https://github.com/benvp/insomnia-plugin-op/blob/main/images/plugin-usage-2.png?raw=true)
+
+3. Add a custom account name, or leave empty to use the default account.
 
 As an alternative, you can also add the secret reference to your environment variables and
 reference this variable inside the action.

@@ -32,8 +32,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -72,8 +72,8 @@ var fetchSecretTemplateTag = {
     name: 'op',
     displayName: '1Password => Fetch Secret',
     liveDisplayName: function (args) {
-        var _a, _b;
-        return "1Password => ".concat((_b = (_a = args[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : '--');
+        var _a, _b, _c;
+        return "1Password => ".concat((_b = (_a = args[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : '--', " {").concat(((_c = args[1]) === null || _c === void 0 ? void 0 : _c.value) ? (args[1].value) : '', "}");
     },
     description: 'Fetch a secret from your 1Password vault',
     args: [
@@ -82,10 +82,17 @@ var fetchSecretTemplateTag = {
             description: '1Password item reference (op://...)',
             type: 'string',
             defaultValue: '',
-            placeholder: "e.g. 'op://team-name.1password.com/vault-name/item-name'",
+            placeholder: "e.g. 'op://vault-name/item-name/section/field'",
+        },
+        {
+            displayName: 'Account',
+            description: '1Password account name',
+            type: 'string',
+            defaultValue: '',
+            placeholder: "e.g. 'team-name.1password.com'",
         },
     ],
-    run: function (context, reference) {
+    run: function (context, reference, account) {
         return __awaiter(this, void 0, void 0, function () {
             var config, entry;
             return __generator(this, function (_a) {
@@ -98,7 +105,7 @@ var fetchSecretTemplateTag = {
                         return [4, checkCli(config === null || config === void 0 ? void 0 : config.cliPath)];
                     case 1:
                         _a.sent();
-                        return [4, fetchEntry(reference)];
+                        return [4, fetchEntry(reference, account !== null && account !== void 0 ? account : config === null || config === void 0 ? void 0 : config.defaultAccount)];
                     case 2:
                         entry = _a.sent();
                         return [2, entry];
@@ -143,15 +150,19 @@ function checkCli(cliPath) {
         });
     });
 }
-function fetchEntry(ref) {
+function fetchEntry(ref, account) {
     return __awaiter(this, void 0, void 0, function () {
-        var existing, entry;
+        var existing, args, entry;
         return __generator(this, function (_a) {
             existing = cache.getEntry(ref);
             if (existing) {
                 return [2, existing];
             }
-            entry = op_js_1.read.parse(ref);
+            args = {};
+            if (account) {
+                args.account = account;
+            }
+            entry = op_js_1.read.parse(ref, args);
             cache.writeEntry(ref, entry);
             return [2, entry];
         });
