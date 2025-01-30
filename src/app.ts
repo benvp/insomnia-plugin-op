@@ -7,6 +7,7 @@ type PluginConfig = {
   cliPath?: string;
   flags?: Record<string, any>;
   defaultAccount?: string;
+  cacheTTL?: number;
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
@@ -42,6 +43,10 @@ const fetchSecretTemplateTag = {
 
     if (config?.flags) {
       setGlobalFlags(config.flags);
+    }
+
+    if (typeof config?.cacheTTL === 'number') {
+      cache.setStdTTL(config.cacheTTL);
     }
 
     await checkCli(config?.cliPath);

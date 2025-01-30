@@ -7,6 +7,7 @@ export function writeEntry(ref: string, value: string | number) {
 }
 
 export function getEntry(ref: string) {
+  console.log(cache.getTtl(ref));
   return cache.get(ref);
 }
 
@@ -16,4 +17,8 @@ export function opCliInstalled() {
 
 export function writeOpCliInstalled(installed: boolean) {
   return cache.set('opCliInstalled', installed);
+}
+
+export function setStdTTL(ttl: number) {
+  cache.options.stdTTL = ttl;
 }
