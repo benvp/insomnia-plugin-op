@@ -7,7 +7,6 @@ export function writeEntry(ref: string, value: string | number) {
 }
 
 export function getEntry(ref: string) {
-  console.log(cache.getTtl(ref));
   return cache.get(ref);
 }
 

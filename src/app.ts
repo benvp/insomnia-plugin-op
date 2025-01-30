@@ -16,7 +16,6 @@ const fetchSecretTemplateTag = {
   name: 'op',
   displayName: '1Password => Fetch Secret',
   liveDisplayName: (args: any[]) => {
-    console.log(args);
     return `1Password => ${args[0]?.value ?? '--'}${args[1]?.value ? ` (${args[1].value})` : ''}`;
   },
   description: 'Fetch a secret from your 1Password vault',
@@ -38,8 +37,6 @@ const fetchSecretTemplateTag = {
   ],
   async run(context: any, reference: string, account: string) {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
-
-    console.log(context, reference, account);
 
     if (config?.flags) {
       setGlobalFlags(config.flags);
