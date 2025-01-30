@@ -28,6 +28,10 @@ Add the plugin config into your base environment (replace or remove the account 
   "__op_plugin": {
     "cliPath": "/opt/homebrew/bin/op",
     "defaultAccount": "team-name.1password.com",
+    
+    // Passwords are kept in memory for 3600 seconds (1 hour) by default. You can change this TTL here.
+    // To access passwords that are added to 1Password before the TTL expires you'll need to restart Insomnia.
+    "ttl": 3600,
 
     // If you need to set any global flags set them here.
     // For available flags, see https://developer.1password.com/docs/cli/reference/#global-flags
@@ -56,6 +60,8 @@ reference this variable inside the action.
 Due to the fact that Insomnia retrieves the values every time when you e.g. hover over a variable
 the plugin uses `node-cache` to cache secrets for one hour. If you want to purge the cache,
 restart Insomnia.
+
+You can change this default TTL by setting the `ttl` property in the plugin config. See [configuration](#configuration) section.
 
 ## Acknowledgements
 
