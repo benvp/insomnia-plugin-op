@@ -1,6 +1,6 @@
 {
   "name": "insomnia-plugin-op",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Insomnia Plugin to integrate with 1Password CLI (op)",
   "main": "./dist/app.js",
   "type": "commonjs",

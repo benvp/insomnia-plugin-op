@@ -67,29 +67,28 @@ var op_js_1 = require("@1password/op-js");
 var cache = __importStar(require("./cache"));
 var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
-var OP_PLUGIN_CONFIG_KEY = "__op_plugin";
+var OP_PLUGIN_CONFIG_KEY = '__op_plugin';
 var fetchSecretTemplateTag = {
-    name: "op",
-    displayName: "1Password => Fetch Secret",
+    name: 'op',
+    displayName: '1Password => Fetch Secret',
     liveDisplayName: function (args) {
         var _a, _b, _c;
-        console.log(args);
-        return "1Password => ".concat((_b = (_a = args[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : "--").concat(((_c = args[1]) === null || _c === void 0 ? void 0 : _c.value) ? " (".concat(args[1].value, ")") : "");
+        return "1Password => ".concat((_b = (_a = args[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : '--').concat(((_c = args[1]) === null || _c === void 0 ? void 0 : _c.value) ? " (".concat(args[1].value, ")") : '');
     },
-    description: "Fetch a secret from your 1Password vault",
+    description: 'Fetch a secret from your 1Password vault',
     args: [
         {
-            displayName: "Reference",
-            description: "1Password item reference (op://...)",
-            type: "string",
-            defaultValue: "",
+            displayName: 'Reference',
+            description: '1Password item reference (op://...)',
+            type: 'string',
+            defaultValue: '',
             placeholder: "e.g. 'op://vault-name/item-name/section/field'",
         },
         {
-            displayName: "Account",
-            description: "1Password account name",
-            type: "string",
-            defaultValue: "",
+            displayName: 'Account',
+            description: '1Password account name',
+            type: 'string',
+            defaultValue: '',
             placeholder: "e.g. 'team-name.1password.com'",
         },
     ],
@@ -100,9 +99,11 @@ var fetchSecretTemplateTag = {
                 switch (_a.label) {
                     case 0:
                         config = context.context[OP_PLUGIN_CONFIG_KEY];
-                        console.log(context, reference, account);
                         if (config === null || config === void 0 ? void 0 : config.flags) {
                             (0, op_js_1.setGlobalFlags)(config.flags);
+                        }
+                        if (typeof (config === null || config === void 0 ? void 0 : config.cacheTTL) === 'number') {
+                            cache.setStdTTL(config.cacheTTL);
                         }
                         return [4, checkCli(config === null || config === void 0 ? void 0 : config.cliPath)];
                     case 1:
@@ -136,9 +137,7 @@ function checkCli(cliPath) {
                             pathToAdd = path_1.default.dirname(cliPath);
                         }
                     }
-                    process.env.PATH = pathToAdd
-                        ? "".concat(pathToAdd, ":").concat(process.env.PATH)
-                        : process.env.PATH;
+                    process.env.PATH = pathToAdd ? "".concat(pathToAdd, ":").concat(process.env.PATH) : process.env.PATH;
                     return [4, (0, op_js_1.validateCli)()];
                 case 2:
                     _a.sent();
