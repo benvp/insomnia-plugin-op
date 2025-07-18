@@ -67,14 +67,11 @@ var op_js_1 = require("@1password/op-js");
 var cache = __importStar(require("./cache"));
 var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
+var debounceTimer;
 var OP_PLUGIN_CONFIG_KEY = '__op_plugin';
 var fetchSecretTemplateTag = {
     name: 'op',
     displayName: '1Password => Fetch Secret',
-    liveDisplayName: function (args) {
-        var _a, _b, _c;
-        return "1Password => ".concat((_b = (_a = args[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : '--').concat(((_c = args[1]) === null || _c === void 0 ? void 0 : _c.value) ? " (".concat(args[1].value, ")") : '');
-    },
     description: 'Fetch a secret from your 1Password vault',
     args: [
         {
@@ -94,25 +91,42 @@ var fetchSecretTemplateTag = {
     ],
     run: function (context, reference, account) {
         return __awaiter(this, void 0, void 0, function () {
-            var config, entry;
+            var config, timeOut;
+            var _this = this;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        config = context.context[OP_PLUGIN_CONFIG_KEY];
-                        if (config === null || config === void 0 ? void 0 : config.flags) {
-                            (0, op_js_1.setGlobalFlags)(config.flags);
-                        }
-                        if (typeof (config === null || config === void 0 ? void 0 : config.cacheTTL) === 'number') {
-                            cache.setStdTTL(config.cacheTTL);
-                        }
-                        return [4, checkCli(config === null || config === void 0 ? void 0 : config.cliPath)];
-                    case 1:
-                        _a.sent();
-                        return [4, fetchEntry(reference, account !== null && account !== void 0 ? account : config === null || config === void 0 ? void 0 : config.defaultAccount)];
-                    case 2:
-                        entry = _a.sent();
-                        return [2, entry];
+                config = context.context[OP_PLUGIN_CONFIG_KEY];
+                timeOut = (config === null || config === void 0 ? void 0 : config.debounceTime) || 500;
+                if (context.renderPurpose !== 'send' && context.renderPurpose !== 'preview') {
+                    return [2, '****'];
                 }
+                if (context.renderPurpose === 'preview') {
+                    return [2, new Promise(function (resolve) {
+                            clearTimeout(debounceTimer);
+                            debounceTimer = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+                                var secret, error_1;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0:
+                                            _a.trys.push([0, 2, , 3]);
+                                            if (!reference) {
+                                                return [2, resolve('...')];
+                                            }
+                                            return [4, getSecret(config, reference, account)];
+                                        case 1:
+                                            secret = _a.sent();
+                                            resolve(secret);
+                                            return [3, 3];
+                                        case 2:
+                                            error_1 = _a.sent();
+                                            resolve("Error: ".concat(error_1.message));
+                                            return [3, 3];
+                                        case 3: return [2];
+                                    }
+                                });
+                            }); }, timeOut);
+                        })];
+                }
+                return [2, getSecret(config, reference, account)];
             });
         });
     },
@@ -168,6 +182,29 @@ function fetchEntry(ref, account) {
             entry = op_js_1.read.parse(ref, args);
             cache.writeEntry(ref, entry);
             return [2, entry];
+        });
+    });
+}
+function getSecret(config, reference, account) {
+    return __awaiter(this, void 0, void 0, function () {
+        var entry;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (config === null || config === void 0 ? void 0 : config.flags) {
+                        (0, op_js_1.setGlobalFlags)(config.flags);
+                    }
+                    if (typeof (config === null || config === void 0 ? void 0 : config.cacheTTL) === 'number') {
+                        cache.setStdTTL(config.cacheTTL);
+                    }
+                    return [4, checkCli(config === null || config === void 0 ? void 0 : config.cliPath)];
+                case 1:
+                    _a.sent();
+                    return [4, fetchEntry(reference, account !== null && account !== void 0 ? account : config === null || config === void 0 ? void 0 : config.defaultAccount)];
+                case 2:
+                    entry = _a.sent();
+                    return [2, entry];
+            }
         });
     });
 }
