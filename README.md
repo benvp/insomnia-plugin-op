@@ -33,6 +33,16 @@ Add the plugin config into your base environment (replace or remove the account 
     // To access passwords that are added to 1Password before the TTL expires you'll need to restart Insomnia.
     // Use 0 for infinite caching. This will require a restart Insomnia to refresh credentials.
     "cacheTTL": 3600,
+    // --- Performance Tuning ---
+
+    // Enables a debounced live preview of the secret in the editor.
+    // When enabled, the plugin will fetch the secret after you stop typing.
+    // Defaults to 'true'. Set to 'false' to disable fetching in the editor entirely.
+    "enableLivePreview": true,
+
+    // The delay in milliseconds after you stop typing before the secret is fetched.
+    // Defaults to 500ms.
+    "livePreviewFetchDelay": 500,
 
     // If you need to set any global flags set them here.
     // For available flags, see https://developer.1password.com/docs/cli/reference/#global-flags
@@ -55,6 +65,14 @@ Add the plugin config into your base environment (replace or remove the account 
 
 As an alternative, you can also add the secret reference to your environment variables and
 reference this variable inside the action.
+
+## Performance Tuning & Live Preview
+
+Previously, the plugin could cause UI lag or freezing when editing a secret reference due to fetching on every keystroke. This has been resolved by implementing a **debounced live preview**.
+
+The plugin now waits for you to stop typing before fetching the secret, providing a smooth editing experience by default. Additionally, it no longer performs a fetch on simple mouse-over events.
+
+You can customize this behavior using the `enableLivePreview` and `livePreviewFetchDelay` settings in the configuration.
 
 ## Caveats
 

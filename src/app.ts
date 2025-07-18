@@ -10,7 +10,8 @@ type PluginConfig = {
   flags?: Record<string, any>;
   defaultAccount?: string;
   cacheTTL?: number;
-  debounceTime?: number;
+  livePreviewFetchDelay?: number;
+  enableLivePreview?: boolean;
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
@@ -18,16 +19,9 @@ const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
 const fetchSecretTemplateTag = {
   name: 'op',
   displayName: '1Password => Fetch Secret',
-  // The 'liveDisplayName' property is intentionally commented out to prevent severe UI freezing during editing.
-  //
-  // While this function is fast, its presence signals to Insomnia's rendering engine that the entire tag
-  // must be re-evaluated on every keystroke to update the display. This rapid re-evaluation
-  // repeatedly triggers the main 'run' function, which executes a slow, blocking call to the 'op' CLI.
-  //
-  // Disabling this feature ensures a smooth user experience, at the minor cost of a static tag label.
-  //liveDisplayName: (args: any[]) => {
-  //  return `1Password => ${args[0]?.value ?? '--'}${args[1]?.value ? ` (${args[1].value})` : ''}`;
-  //},
+  liveDisplayName: (args: any[]) => {
+    return `1Password => ${args[0]?.value ?? '--'}${args[1]?.value ? ` (${args[1].value})` : ''}`;
+  },
   description: 'Fetch a secret from your 1Password vault',
   args: [
     {
@@ -47,30 +41,35 @@ const fetchSecretTemplateTag = {
   ],
   async run(context: any, reference: string, account: string) {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
-    const timeOut = config?.debounceTime || 500;
+    const timeOut = config?.livePreviewFetchDelay || 500;
+    const livePreviewEnabled = config?.enableLivePreview !== false;
 
     // 1. Correctly handle mouse-over and other non-critical renders immediately.
     if (context.renderPurpose !== 'send' && context.renderPurpose !== 'preview') {
       return '****';
     }
 
-    // 2. Handle the live preview with a debounce.
+    // 2. Handle the live preview with a debounce if config.enableLivePreview is true
     if (context.renderPurpose === 'preview') {
-      return new Promise(resolve => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-          try {
-            if (!reference) {
-              return resolve('...');
+      if (livePreviewEnabled) {
+        return new Promise(resolve => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(async () => {
+            try {
+              if (!reference) {
+                return resolve('****');
+              }
+              const secret = await getSecret(config, reference, account);
+              resolve(secret);
+            } catch (error: any) {
+              // Resolve with the error message so it's visible in the preview.
+              resolve(`Error: ${error.message}`);
             }
-            const secret = await getSecret(config, reference, account);
-            resolve(secret);
-          } catch (error: any) {
-            // Resolve with the error message so it's visible in the preview.
-            resolve(`Error: ${error.message}`);
-          }
-        }, timeOut);
-      });
+          }, timeOut);
+        });
+      } else {
+        return '****';
+      }
     }
 
     // 3. If the purpose is 'send', run the fetch immediately.

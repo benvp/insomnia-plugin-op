@@ -72,6 +72,10 @@ var OP_PLUGIN_CONFIG_KEY = '__op_plugin';
 var fetchSecretTemplateTag = {
     name: 'op',
     displayName: '1Password => Fetch Secret',
+    liveDisplayName: function (args) {
+        var _a, _b, _c;
+        return "1Password => ".concat((_b = (_a = args[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : '--').concat(((_c = args[1]) === null || _c === void 0 ? void 0 : _c.value) ? " (".concat(args[1].value, ")") : '');
+    },
     description: 'Fetch a secret from your 1Password vault',
     args: [
         {
@@ -91,40 +95,46 @@ var fetchSecretTemplateTag = {
     ],
     run: function (context, reference, account) {
         return __awaiter(this, void 0, void 0, function () {
-            var config, timeOut;
+            var config, timeOut, livePreviewEnabled;
             var _this = this;
             return __generator(this, function (_a) {
                 config = context.context[OP_PLUGIN_CONFIG_KEY];
-                timeOut = (config === null || config === void 0 ? void 0 : config.debounceTime) || 500;
+                timeOut = (config === null || config === void 0 ? void 0 : config.livePreviewFetchDelay) || 500;
+                livePreviewEnabled = (config === null || config === void 0 ? void 0 : config.enableLivePreview) !== false;
                 if (context.renderPurpose !== 'send' && context.renderPurpose !== 'preview') {
                     return [2, '****'];
                 }
                 if (context.renderPurpose === 'preview') {
-                    return [2, new Promise(function (resolve) {
-                            clearTimeout(debounceTimer);
-                            debounceTimer = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
-                                var secret, error_1;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            _a.trys.push([0, 2, , 3]);
-                                            if (!reference) {
-                                                return [2, resolve('...')];
-                                            }
-                                            return [4, getSecret(config, reference, account)];
-                                        case 1:
-                                            secret = _a.sent();
-                                            resolve(secret);
-                                            return [3, 3];
-                                        case 2:
-                                            error_1 = _a.sent();
-                                            resolve("Error: ".concat(error_1.message));
-                                            return [3, 3];
-                                        case 3: return [2];
-                                    }
-                                });
-                            }); }, timeOut);
-                        })];
+                    if (livePreviewEnabled) {
+                        return [2, new Promise(function (resolve) {
+                                clearTimeout(debounceTimer);
+                                debounceTimer = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+                                    var secret, error_1;
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0:
+                                                _a.trys.push([0, 2, , 3]);
+                                                if (!reference) {
+                                                    return [2, resolve('****')];
+                                                }
+                                                return [4, getSecret(config, reference, account)];
+                                            case 1:
+                                                secret = _a.sent();
+                                                resolve(secret);
+                                                return [3, 3];
+                                            case 2:
+                                                error_1 = _a.sent();
+                                                resolve("Error: ".concat(error_1.message));
+                                                return [3, 3];
+                                            case 3: return [2];
+                                        }
+                                    });
+                                }); }, timeOut);
+                            })];
+                    }
+                    else {
+                        return [2, '****'];
+                    }
                 }
                 return [2, getSecret(config, reference, account)];
             });
