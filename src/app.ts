@@ -3,11 +3,15 @@ import * as cache from './cache';
 import path from 'path';
 import fs from 'fs';
 
+let debounceTimer: NodeJS.Timeout;
+
 type PluginConfig = {
   cliPath?: string;
   flags?: Record<string, any>;
   defaultAccount?: string;
   cacheTTL?: number;
+  livePreviewFetchDelay?: number;
+  enableLivePreview?: boolean;
 };
 
 const OP_PLUGIN_CONFIG_KEY = '__op_plugin';
@@ -37,19 +41,22 @@ const fetchSecretTemplateTag = {
   ],
   async run(context: any, reference: string, account: string) {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
+    const timeout = config?.livePreviewFetchDelay || 500;
+    const livePreviewEnabled = config?.enableLivePreview !== false;
 
-    if (config?.flags) {
-      setGlobalFlags(config.flags);
+    if (context.renderPurpose !== 'send' && context.renderPurpose !== 'preview') {
+      return '****';
     }
 
-    if (typeof config?.cacheTTL === 'number') {
-      cache.setStdTTL(config.cacheTTL);
+    if (context.renderPurpose === 'preview') {
+      if (livePreviewEnabled) {
+        return getDebouncedSecret(config, reference, account, timeout);
+      } else {
+        return 'No preview available. Set __op_plugin.enableLivePreview to true to enable it.';
+      }
     }
 
-    await checkCli(config?.cliPath);
-    const entry = await fetchEntry(reference, account ?? config?.defaultAccount);
-
-    return entry;
+    return getSecret(config, reference, account);
   },
 };
 
@@ -70,7 +77,6 @@ async function checkCli(cliPath?: string) {
 
       // add the CLI to the PATH
       process.env.PATH = pathToAdd ? `${pathToAdd}:${process.env.PATH}` : process.env.PATH;
-
       await validateCli();
 
       cache.writeOpCliInstalled(true);
@@ -103,6 +109,48 @@ async function fetchEntry(ref: string, account: string) {
   cache.writeEntry(ref, entry);
 
   return entry;
+}
+
+async function getSecret(config: any, reference: string, account: string) {
+  if (config?.flags) {
+    setGlobalFlags(config.flags);
+  }
+
+  if (typeof config?.cacheTTL === 'number') {
+    cache.setStdTTL(config.cacheTTL);
+  }
+
+  await checkCli(config?.cliPath);
+  const entry = await fetchEntry(reference, account ?? config?.defaultAccount);
+
+  return entry;
+}
+
+function getDebouncedSecret(
+  config: PluginConfig | undefined,
+  reference: string,
+  account: string,
+  timeout: number,
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(async () => {
+      try {
+        if (!reference) {
+          return reject('No reference provided.');
+        }
+
+        const secret = await getSecret(config, reference, account);
+
+        resolve(secret);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        reject(`Error: ${errorMessage}`);
+      }
+    }, timeout);
+  });
 }
 
 export const templateTags = [fetchSecretTemplateTag];

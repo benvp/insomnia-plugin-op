@@ -67,6 +67,7 @@ var op_js_1 = require("@1password/op-js");
 var cache = __importStar(require("./cache"));
 var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
+var debounceTimer;
 var OP_PLUGIN_CONFIG_KEY = '__op_plugin';
 var fetchSecretTemplateTag = {
     name: 'op',
@@ -94,25 +95,23 @@ var fetchSecretTemplateTag = {
     ],
     run: function (context, reference, account) {
         return __awaiter(this, void 0, void 0, function () {
-            var config, entry;
+            var config, timeout, livePreviewEnabled;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        config = context.context[OP_PLUGIN_CONFIG_KEY];
-                        if (config === null || config === void 0 ? void 0 : config.flags) {
-                            (0, op_js_1.setGlobalFlags)(config.flags);
-                        }
-                        if (typeof (config === null || config === void 0 ? void 0 : config.cacheTTL) === 'number') {
-                            cache.setStdTTL(config.cacheTTL);
-                        }
-                        return [4, checkCli(config === null || config === void 0 ? void 0 : config.cliPath)];
-                    case 1:
-                        _a.sent();
-                        return [4, fetchEntry(reference, account !== null && account !== void 0 ? account : config === null || config === void 0 ? void 0 : config.defaultAccount)];
-                    case 2:
-                        entry = _a.sent();
-                        return [2, entry];
+                config = context.context[OP_PLUGIN_CONFIG_KEY];
+                timeout = (config === null || config === void 0 ? void 0 : config.livePreviewFetchDelay) || 500;
+                livePreviewEnabled = (config === null || config === void 0 ? void 0 : config.enableLivePreview) !== false;
+                if (context.renderPurpose !== 'send' && context.renderPurpose !== 'preview') {
+                    return [2, '****'];
                 }
+                if (context.renderPurpose === 'preview') {
+                    if (livePreviewEnabled) {
+                        return [2, getDebouncedSecret(config, reference, account, timeout)];
+                    }
+                    else {
+                        return [2, 'No preview available. Set __op_plugin.enableLivePreview to true to enable it.'];
+                    }
+                }
+                return [2, getSecret(config, reference, account)];
             });
         });
     },
@@ -169,6 +168,58 @@ function fetchEntry(ref, account) {
             cache.writeEntry(ref, entry);
             return [2, entry];
         });
+    });
+}
+function getSecret(config, reference, account) {
+    return __awaiter(this, void 0, void 0, function () {
+        var entry;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (config === null || config === void 0 ? void 0 : config.flags) {
+                        (0, op_js_1.setGlobalFlags)(config.flags);
+                    }
+                    if (typeof (config === null || config === void 0 ? void 0 : config.cacheTTL) === 'number') {
+                        cache.setStdTTL(config.cacheTTL);
+                    }
+                    return [4, checkCli(config === null || config === void 0 ? void 0 : config.cliPath)];
+                case 1:
+                    _a.sent();
+                    return [4, fetchEntry(reference, account !== null && account !== void 0 ? account : config === null || config === void 0 ? void 0 : config.defaultAccount)];
+                case 2:
+                    entry = _a.sent();
+                    return [2, entry];
+            }
+        });
+    });
+}
+function getDebouncedSecret(config, reference, account, timeout) {
+    var _this = this;
+    return new Promise(function (resolve, reject) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+            var secret, error_1, errorMessage;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        if (!reference) {
+                            return [2, reject('No reference provided.')];
+                        }
+                        return [4, getSecret(config, reference, account)];
+                    case 1:
+                        secret = _a.sent();
+                        resolve(secret);
+                        return [3, 3];
+                    case 2:
+                        error_1 = _a.sent();
+                        errorMessage = error_1 instanceof Error ? error_1.message : String(error_1);
+                        reject("Error: ".concat(errorMessage));
+                        return [3, 3];
+                    case 3: return [2];
+                }
+            });
+        }); }, timeout);
     });
 }
 exports.templateTags = [fetchSecretTemplateTag];

@@ -39,6 +39,17 @@ Add the plugin config into your base environment (replace or remove the account 
     "flags": {
       "account": "example.1password.com",
     }
+
+    // --- Performance Tuning ---
+
+    // Enables a debounced live preview of the secret in the editor.
+    // When enabled, the plugin will fetch the secret after you stop typing.
+    // Defaults to 'true'. Set to 'false' to disable fetching in the editor entirely.
+    "enableLivePreview": true,
+
+    // The delay in milliseconds after you stop typing before the secret is fetched.
+    // Defaults to 500ms.
+    "livePreviewFetchDelay": 500,
   }
 }
 ```
@@ -61,6 +72,12 @@ reference this variable inside the action.
 Due to the fact that Insomnia retrieves the values every time when you e.g. hover over a variable
 the plugin uses `node-cache` to cache secrets for one hour. If you want to purge the cache,
 restart Insomnia.
+
+## FAQ
+
+**Error: unknown block tag: op**
+
+Insomnia requires you to enable elevated privileges in the plugins preference pane. You need to check the "Allow elevated access for plugins".
 
 ## Acknowledgements
 
