@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 (2025-10-31)
+
+### New Features
+
+  * allow configuration of live preview to improve performance.
+
+
 ## 0.3.0 (2025-01-30)
 
 ### New Features
