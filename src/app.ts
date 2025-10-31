@@ -41,38 +41,21 @@ const fetchSecretTemplateTag = {
   ],
   async run(context: any, reference: string, account: string) {
     const config = context.context[OP_PLUGIN_CONFIG_KEY] as PluginConfig | undefined;
-    const timeOut = config?.livePreviewFetchDelay || 500;
+    const timeout = config?.livePreviewFetchDelay || 500;
     const livePreviewEnabled = config?.enableLivePreview !== false;
 
-    // 1. Correctly handle mouse-over and other non-critical renders immediately.
     if (context.renderPurpose !== 'send' && context.renderPurpose !== 'preview') {
       return '****';
     }
 
-    // 2. Handle the live preview with a debounce if config.enableLivePreview is true
     if (context.renderPurpose === 'preview') {
       if (livePreviewEnabled) {
-        return new Promise(resolve => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(async () => {
-            try {
-              if (!reference) {
-                return resolve('****');
-              }
-              const secret = await getSecret(config, reference, account);
-              resolve(secret);
-            } catch (error: any) {
-              // Resolve with the error message so it's visible in the preview.
-              resolve(`Error: ${error.message}`);
-            }
-          }, timeOut);
-        });
+        return getDebouncedSecret(config, reference, account, timeout);
       } else {
-        return '****';
+        return 'No preview available. Set __op_plugin.enableLivePreview to true to enable it.';
       }
     }
 
-    // 3. If the purpose is 'send', run the fetch immediately.
     return getSecret(config, reference, account);
   },
 };
@@ -142,4 +125,32 @@ async function getSecret(config: any, reference: string, account: string) {
 
   return entry;
 }
+
+function getDebouncedSecret(
+  config: PluginConfig | undefined,
+  reference: string,
+  account: string,
+  timeout: number,
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(async () => {
+      try {
+        if (!reference) {
+          return reject('No reference provided.');
+        }
+
+        const secret = await getSecret(config, reference, account);
+
+        resolve(secret);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        reject(`Error: ${errorMessage}`);
+      }
+    }, timeout);
+  });
+}
+
 export const templateTags = [fetchSecretTemplateTag];

@@ -95,45 +95,20 @@ var fetchSecretTemplateTag = {
     ],
     run: function (context, reference, account) {
         return __awaiter(this, void 0, void 0, function () {
-            var config, timeOut, livePreviewEnabled;
-            var _this = this;
+            var config, timeout, livePreviewEnabled;
             return __generator(this, function (_a) {
                 config = context.context[OP_PLUGIN_CONFIG_KEY];
-                timeOut = (config === null || config === void 0 ? void 0 : config.livePreviewFetchDelay) || 500;
+                timeout = (config === null || config === void 0 ? void 0 : config.livePreviewFetchDelay) || 500;
                 livePreviewEnabled = (config === null || config === void 0 ? void 0 : config.enableLivePreview) !== false;
                 if (context.renderPurpose !== 'send' && context.renderPurpose !== 'preview') {
                     return [2, '****'];
                 }
                 if (context.renderPurpose === 'preview') {
                     if (livePreviewEnabled) {
-                        return [2, new Promise(function (resolve) {
-                                clearTimeout(debounceTimer);
-                                debounceTimer = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
-                                    var secret, error_1;
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                _a.trys.push([0, 2, , 3]);
-                                                if (!reference) {
-                                                    return [2, resolve('****')];
-                                                }
-                                                return [4, getSecret(config, reference, account)];
-                                            case 1:
-                                                secret = _a.sent();
-                                                resolve(secret);
-                                                return [3, 3];
-                                            case 2:
-                                                error_1 = _a.sent();
-                                                resolve("Error: ".concat(error_1.message));
-                                                return [3, 3];
-                                            case 3: return [2];
-                                        }
-                                    });
-                                }); }, timeOut);
-                            })];
+                        return [2, getDebouncedSecret(config, reference, account, timeout)];
                     }
                     else {
-                        return [2, '****'];
+                        return [2, 'No preview available. Set __op_plugin.enableLivePreview to true to enable it.'];
                     }
                 }
                 return [2, getSecret(config, reference, account)];
@@ -216,6 +191,35 @@ function getSecret(config, reference, account) {
                     return [2, entry];
             }
         });
+    });
+}
+function getDebouncedSecret(config, reference, account, timeout) {
+    var _this = this;
+    return new Promise(function (resolve, reject) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+            var secret, error_1, errorMessage;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        if (!reference) {
+                            return [2, reject('No reference provided.')];
+                        }
+                        return [4, getSecret(config, reference, account)];
+                    case 1:
+                        secret = _a.sent();
+                        resolve(secret);
+                        return [3, 3];
+                    case 2:
+                        error_1 = _a.sent();
+                        errorMessage = error_1 instanceof Error ? error_1.message : String(error_1);
+                        reject("Error: ".concat(errorMessage));
+                        return [3, 3];
+                    case 3: return [2];
+                }
+            });
+        }); }, timeout);
     });
 }
 exports.templateTags = [fetchSecretTemplateTag];
